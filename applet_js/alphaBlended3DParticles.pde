@@ -1,6 +1,6 @@
 Particle p[];
 float fadeRate;
-int numParticles = 50;
+int numParticles = 30;
 PVector mouseAttractVec;
 boolean userHasInteracted = false;
 PImage dancer;
@@ -12,7 +12,7 @@ void setup() {
   smooth();
   noStroke();
   frameRate(30);
-  mouseAttractVec = new PVector(0.146f, 0.6f, 0.0f);
+  mouseAttractVec = new PVector(0.146f, 0.6f, .5f);
   partEmitPos = new PVector(169, 32, 0);
   
   dancer = loadImage("danielle.jpg");
@@ -40,7 +40,7 @@ void draw() {
   
   updateParticles(p);
   
-  println("frameRate: " + frameRate);
+  //println("frameRate: " + frameRate);
 }
 
 void mouseMoved() {
