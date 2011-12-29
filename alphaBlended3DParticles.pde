@@ -3,24 +3,32 @@ float fadeRate;
 int numParticles = 50;
 PVector mouseAttractVec;
 boolean userHasInteracted = false;
+PImage dancer;
+PVector partEmitPos;
 
 void setup() {
-  size(500, 500);
+  size(512, 512);
   background(0);
   smooth();
   noStroke();
   frameRate(30);
-  mouseAttractVec = new PVector(0.0f, 0.0f, 0.0f);
+  mouseAttractVec = new PVector(0.146f, 0.6f, 0.0f);
+  partEmitPos = new PVector(169, 32, 0);
+  
+  dancer = loadImage("danielle.jpg");
   
   fadeRate = 15.0f;
   p = new Particle[numParticles];
   
   for (int i=0; i < numParticles; i++) {
-    p[i] = new Particle();
+    p[i] = new Particle(partEmitPos);
   }
 }
 
 void draw() {
+  background(0);
+  imageMode(CENTER);
+  image(dancer, width / 2, height / 2);
   
   if (frameCount == 0) {
     mouseAttractVec = new PVector(0.0f, 0.0f, 0.0f);
@@ -29,7 +37,7 @@ void draw() {
   if (userHasInteracted && (frameCount % (int) (frameRate / 4) == 0)) {
       mouseAttractVec = getMouseAttractVec();
   }
-  background(0);
+  
   updateParticles(p);
 }
 
@@ -42,16 +50,13 @@ void mousePressed() {
 }
 
 PVector getMouseAttractVec() {
-    //for some reason, processing sets the mouseX 
-    //and mouseY to upper left corner. Detecting 
-    //and correcting. Assuming user can never get a
-    //mouseX, mouseY of (0, 0);
-    if (mouseX == 0 && mouseY == 0) {
-      println("were both 0 on frame " + frameCount);
-    }
-
-    float newXVal = map(mouseX, 0, width, -1, 1);
-    float newYVal = map(mouseY, 0, height, -1, 1);
+    //float newXVal = map(mouseX, 0, width, -1, 1);
+    //float newYVal = map(mouseY, 0, height, -1, 1);
+    
+    PVector maxDistances = new PVector(width, height);
+    maxDistances.sub(partEmitPos);
+    float newXVal = (mouseX - partEmitPos.x) / maxDistances.x;
+    float newYVal = (mouseY - partEmitPos.y) / maxDistances.y;
       
     return new PVector(newXVal, newYVal, 0.0f);
 }
@@ -59,10 +64,9 @@ PVector getMouseAttractVec() {
 void updateParticles(Particle _p[]) {
   for (int i = 0; i < _p.length; i++) {
     _p[i].render();
-    _p[i].move();
   
     if (_p[i].lifeOver()) {
-      _p[i] = new Particle();
+      _p[i] = new Particle(partEmitPos);
     }
   }
 }
@@ -72,8 +76,8 @@ class Particle {
   PVector velocity;
   float partSize;
   float partInnerSize;
-  float minMagnitude = 1.0f;
-  float maxMagnitude = 3.0f;
+  float minMagnitude = 2.0f;
+  float maxMagnitude = 6.0f;
   int lifespan = 100;
   int life = 0;
   float zScalar = 0.9; //for determining how the z axis is graphically interpreted
@@ -81,9 +85,9 @@ class Particle {
   float innerRingMultiplier;
   boolean allowAttraction = true;
   
-  Particle() {
+  Particle(PVector _pos) {
     
-    position = new PVector(width / 2.0f, height / 2.0f, 0);
+    position = _pos.get();
     velocity = new PVector(random(-1, 1), random(-1, 1), random(-1, 0.5));
     velocity.normalize();
     velocity.mult(random(minMagnitude, maxMagnitude));
@@ -141,7 +145,7 @@ class Particle {
     if (allowAttraction) {
       float attractionAmount;
       PVector localMouseAttract = mouseAttractVec.get();
-      localMouseAttract.mult(0.08);
+      localMouseAttract.mult(0.25);
       
       float curMagnitude = velocity.mag();
       velocity.add(localMouseAttract);
@@ -161,6 +165,5 @@ class Particle {
     }
     return outOfBounds;
   }
-  
 }
 
