@@ -19,7 +19,6 @@ void setup() {
 
 void draw() {
   background(0);
-  
   updateParticles(p);  
 }
 
@@ -39,30 +38,43 @@ class Particle {
   PVector velocity;
   float partSize;
   float partInnerSize;
-  color baseColor = color(255, 0, 0);
   float minMagnitude = 1.0f;
   float maxMagnitude = 3.0f;
   int lifespan = 100;
   int life = 0;
+  float zScalar = 0.9; //for determining how the z axis is graphically interpreted
+  float curPartSize;
   
   Particle() {
     
     position = new PVector(width / 2.0f, height / 2.0f, 0);
-    velocity = new PVector(random(-1, 1), random(-1, 1), 0.0f);
+    velocity = new PVector(random(-1, 1), random(-1, 1), random(-1, 0.5));
     velocity.normalize();
     velocity.mult(random(minMagnitude, maxMagnitude));
     partSize = random(30, 60);
-    partInnerSize = getInnerSize();
+    curPartSize = partSize;
   }
     
   void render() {
-    fill(baseColor, 20);
-    ellipse(position.x, position.y, partSize, partSize);
-    fill(baseColor, 100);
-    ellipse(position.x, position.y, getInnerSize(), getInnerSize());    
+    
+    curPartSize = getPartSize();
+    
+    int numInnerRings = 10;
+    for (int i = 0; i < numInnerRings; i++) {
+      float curWhiteVal = map(i, 0, numInnerRings - 1, 0, 255);
+      float curAlpha = map(i, 0, numInnerRings - 1, 20, 200);
+      float ringSize = curPartSize / (i * 2.0f + 1.0f);
+
+      fill(curWhiteVal, curWhiteVal, 255, curAlpha);
+      ellipse(position.x, position.y, ringSize, ringSize);
+    }
+    
     life++;
-    updateSize();
     move();
+  }
+  
+  float getPartSize() {
+    return partSize + position.z * zScalar;
   }
   
   float getInnerSize() {
@@ -70,7 +82,7 @@ class Particle {
   }
   
   void updateSize() {
-    partSize = partSize;
+    partSize = partSize + position.z * zScalar;
     partInnerSize = getInnerSize();
   }
   
@@ -81,12 +93,15 @@ class Particle {
       over = isOutOfBounds();
     }
     
+    if (!over && (curPartSize <= 0.0f)) {
+      over = true;
+    }
+    
     return over;
   }
   
   void move() {
-    position.x += velocity.x;
-    position.y += velocity.y;
+    position.add(velocity);
   }
   
   boolean isOutOfBounds() {
