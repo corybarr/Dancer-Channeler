@@ -78,7 +78,7 @@ class Particle {
   float partInnerSize;
   float minMagnitude = 2.0f;
   float maxMagnitude = 6.0f;
-  int lifespan = 100;
+  int lifespan = 130;
   int life = 0;
   float zScalar = 0.9; //for determining how the z axis is graphically interpreted
   float curPartSize;
