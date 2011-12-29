@@ -39,6 +39,8 @@ void draw() {
   }
   
   updateParticles(p);
+  
+  println("frameRate: " + frameRate);
 }
 
 void mouseMoved() {
