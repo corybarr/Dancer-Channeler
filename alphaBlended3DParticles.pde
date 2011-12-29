@@ -1,6 +1,6 @@
 Particle p[];
 float fadeRate;
-int numParticles = 5;
+int numParticles = 50;
 
 void setup() {
   size(500, 500);
@@ -28,7 +28,7 @@ void updateParticles(Particle _p[]) {
     _p[i].render();
     _p[i].move();
   
-    if (_p[i].isOutOfBounds()) {
+    if (_p[i].lifeOver()) {
       _p[i] = new Particle();
     }
   }
@@ -39,16 +39,16 @@ class Particle {
   float yPos;
   float xDir;
   float yDir;
-  float speed;
   float partSize;
   float partInnerSize;
   color baseColor = color(255, 0, 0);
-  float particleMinXSpeed = 2.0f;
+  float particleMinXSpeed = 1.0f;
   float particleMinYSpeed = particleMinXSpeed;
-  float particleMaxXSpeed = 5.0f;
+  float particleMaxXSpeed = 2.0f;
   float particleMaxYSpeed = particleMaxXSpeed;
-  int lifespan = 1000;
+  int lifespan = 100;
   int life = 0;
+  float shrinkFactor = random(0.95, 1.03);
   
   Particle() {
     
@@ -63,9 +63,8 @@ class Particle {
       yDir *= -1.0f;
     }
     
-    speed = 1.0f;
     partSize = random(30, 60);
-    partInnerSize = partSize / 2.0f;
+    partInnerSize = getInnerSize();
   }
     
   void render() {
@@ -74,16 +73,32 @@ class Particle {
     fill(baseColor, 100);
     ellipse(xPos, yPos, partInnerSize, partInnerSize);    
     life++;
+    updateSize();
+    move();
+  }
+  
+  float getInnerSize() {
+    return partSize / 2.0f;
+  }
+  
+  void updateSize() {
+    partSize *= shrinkFactor;
+    partInnerSize = getInnerSize();
   }
   
   boolean lifeOver() {
     boolean over = life > lifespan ? true : false;
+    
+    if (!over) {
+      over = isOutOfBounds();
+    }
+    
     return over;
   }
   
   void move() {
-    xPos += xDir * speed;
-    yPos += yDir * speed;
+    xPos += xDir;
+    yPos += yDir;
   }
   
   boolean isOutOfBounds() {

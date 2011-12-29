@@ -1,6 +1,6 @@
 Particle p[];
 float fadeRate;
-int numParticles = 5;
+int numParticles = 50;
 
 void setup() {
   size(500, 500);
@@ -18,8 +18,7 @@ void setup() {
 }
 
 void draw() {
-  fill(0, fadeRate);
-  rect(0, 0, width, height);
+  background(0);
   
   updateParticles(p);  
 }
@@ -29,7 +28,7 @@ void updateParticles(Particle _p[]) {
     _p[i].render();
     _p[i].move();
   
-    if (_p[i].isOutOfBounds()) {
+    if (_p[i].lifeOver()) {
       _p[i] = new Particle();
     }
   }
@@ -40,37 +39,66 @@ class Particle {
   float yPos;
   float xDir;
   float yDir;
-  float speed;
   float partSize;
   float partInnerSize;
   color baseColor = color(255, 0, 0);
-  float particleMinXSpeed = 2.0f;
+  float particleMinXSpeed = 1.0f;
   float particleMinYSpeed = particleMinXSpeed;
-  float particleMaxXSpeed = 5.0f;
+  float particleMaxXSpeed = 2.0f;
   float particleMaxYSpeed = particleMaxXSpeed;
+  int lifespan = 100;
+  int life = 0;
+  float shrinkFactor = random(0.95, 1.03);
   
   Particle() {
     
-    xPos = random(0, width);
-    yPos = random(0, height);
+    xPos = width / 2.0f;
+    yPos = height / 2.0f;
     xDir = random(particleMinXSpeed, particleMaxXSpeed);
     yDir = random(particleMinYSpeed, particleMaxYSpeed);
-    speed = 1.0f;
-    partSize = 30.0f;
-    partInnerSize = partSize / 2.0f;
+    if (floor(random(0, 2)) == 1) {
+      xDir *= -1.0f;
+    }
+    if (floor(random(0, 2)) == 1) {
+      yDir *= -1.0f;
+    }
+    
+    partSize = random(30, 60);
+    partInnerSize = getInnerSize();
   }
     
   void render() {
-    fill(baseColor, 5);
-    ellipse(xPos, yPos, partSize, partSize);
     fill(baseColor, 20);
+    ellipse(xPos, yPos, partSize, partSize);
+    fill(baseColor, 100);
     ellipse(xPos, yPos, partInnerSize, partInnerSize);    
+    life++;
+    updateSize();
+    move();
+  }
+  
+  float getInnerSize() {
+    return partSize / 2.0f;
+  }
+  
+  void updateSize() {
+    partSize *= shrinkFactor;
+    partInnerSize = getInnerSize();
+  }
+  
+  boolean lifeOver() {
+    boolean over = life > lifespan ? true : false;
+    
+    if (!over) {
+      over = isOutOfBounds();
+    }
+    
+    return over;
   }
   
   void move() {
-    xPos += xDir * speed;
-    yPos += yDir * speed;
-    println(xPos);
+    xPos += xDir;
+    yPos += yDir;
   }
   
   boolean isOutOfBounds() {
