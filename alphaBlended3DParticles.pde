@@ -21,11 +21,19 @@ void setup() {
 
 void draw() {
   
-  if (frameCount % frameRate / 2 == 0) {
+  if (frameCount % (int) (frameRate / 4) == 0) {
+    mouseAttractVec = getMouseAttractVec();
   }
   
   background(0);
   updateParticles(p);
+}
+
+PVector getMouseAttractVec() {
+    float newXVal = map(mouseX, 0, width, -1, 1);
+    float newYVal = map(mouseY, 0, height, -1, 1);
+    
+    return new PVector(newXVal, newYVal, 0.0f);
 }
 
 void updateParticles(Particle _p[]) {
@@ -111,9 +119,17 @@ class Particle {
   
   void move() {
     if (allowAttraction) {
-    } else {
-      position.add(velocity);
-    }
+      float attractionAmount;
+      PVector localMouseAttract = mouseAttractVec.get();
+      localMouseAttract.mult(0.08);
+      
+      float curMagnitude = velocity.mag();
+      velocity.add(localMouseAttract);
+      velocity.normalize();
+      velocity.mult(curMagnitude);
+    } 
+
+    position.add(velocity);
   }
   
   boolean isOutOfBounds() {
