@@ -1,6 +1,7 @@
 Particle p[];
 float fadeRate;
 int numParticles = 50;
+PVector mouseAttractVec;
 
 void setup() {
   size(500, 500);
@@ -8,6 +9,7 @@ void setup() {
   smooth();
   noStroke();
   frameRate(30);
+  mouseAttractVec = new PVector(1.0f, 1.0f, 1.0f);
   
   fadeRate = 15.0f;
   p = new Particle[numParticles];
@@ -18,8 +20,12 @@ void setup() {
 }
 
 void draw() {
+  
+  if (frameCount % frameRate / 2 == 0) {
+  }
+  
   background(0);
-  updateParticles(p);  
+  updateParticles(p);
 }
 
 void updateParticles(Particle _p[]) {
@@ -44,6 +50,8 @@ class Particle {
   int life = 0;
   float zScalar = 0.9; //for determining how the z axis is graphically interpreted
   float curPartSize;
+  float innerRingMultiplier;
+  boolean allowAttraction = true;
   
   Particle() {
     
@@ -53,6 +61,7 @@ class Particle {
     velocity.mult(random(minMagnitude, maxMagnitude));
     partSize = random(30, 60);
     curPartSize = partSize;
+    innerRingMultiplier = random(0.2, 5);
   }
     
   void render() {
@@ -63,7 +72,7 @@ class Particle {
     for (int i = 0; i < numInnerRings; i++) {
       float curWhiteVal = map(i, 0, numInnerRings - 1, 0, 255);
       float curAlpha = map(i, 0, numInnerRings - 1, 20, 200);
-      float ringSize = curPartSize / (i * 2.0f + 1.0f);
+      float ringSize = curPartSize / (i * innerRingMultiplier + 1.0f);
 
       fill(curWhiteVal, curWhiteVal, 255, curAlpha);
       ellipse(position.x, position.y, ringSize, ringSize);
@@ -101,7 +110,10 @@ class Particle {
   }
   
   void move() {
-    position.add(velocity);
+    if (allowAttraction) {
+    } else {
+      position.add(velocity);
+    }
   }
   
   boolean isOutOfBounds() {
