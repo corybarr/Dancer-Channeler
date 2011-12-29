@@ -2,6 +2,7 @@ Particle p[];
 float fadeRate;
 int numParticles = 50;
 PVector mouseAttractVec;
+boolean userHasInteracted = false;
 
 void setup() {
   size(500, 500);
@@ -9,7 +10,7 @@ void setup() {
   smooth();
   noStroke();
   frameRate(30);
-  mouseAttractVec = new PVector(1.0f, 1.0f, 1.0f);
+  mouseAttractVec = new PVector(0.0f, 0.0f, 0.0f);
   
   fadeRate = 15.0f;
   p = new Particle[numParticles];
@@ -21,18 +22,37 @@ void setup() {
 
 void draw() {
   
-  if (frameCount % (int) (frameRate / 4) == 0) {
-    mouseAttractVec = getMouseAttractVec();
+  if (frameCount == 0) {
+    mouseAttractVec = new PVector(0.0f, 0.0f, 0.0f);
   }
   
+  if (userHasInteracted && (frameCount % (int) (frameRate / 4) == 0)) {
+      mouseAttractVec = getMouseAttractVec();
+  }
   background(0);
   updateParticles(p);
 }
 
+void mouseMoved() {
+  userHasInteracted = true;
+}
+
+void mousePressed() {
+  userHasInteracted = true;
+}
+
 PVector getMouseAttractVec() {
+    //for some reason, processing sets the mouseX 
+    //and mouseY to upper left corner. Detecting 
+    //and correcting. Assuming user can never get a
+    //mouseX, mouseY of (0, 0);
+    if (mouseX == 0 && mouseY == 0) {
+      println("were both 0 on frame " + frameCount);
+    }
+
     float newXVal = map(mouseX, 0, width, -1, 1);
     float newYVal = map(mouseY, 0, height, -1, 1);
-    
+      
     return new PVector(newXVal, newYVal, 0.0f);
 }
 
