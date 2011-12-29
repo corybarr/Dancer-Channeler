@@ -35,43 +35,31 @@ void updateParticles(Particle _p[]) {
 }
 
 class Particle {
-  float xPos;
-  float yPos;
-  float xDir;
-  float yDir;
+  PVector position;
+  PVector velocity;
   float partSize;
   float partInnerSize;
   color baseColor = color(255, 0, 0);
-  float particleMinXSpeed = 1.0f;
-  float particleMinYSpeed = particleMinXSpeed;
-  float particleMaxXSpeed = 2.0f;
-  float particleMaxYSpeed = particleMaxXSpeed;
+  float minMagnitude = 1.0f;
+  float maxMagnitude = 3.0f;
   int lifespan = 100;
   int life = 0;
-  float shrinkFactor = random(0.95, 1.03);
   
   Particle() {
     
-    xPos = width / 2.0f;
-    yPos = height / 2.0f;
-    xDir = random(particleMinXSpeed, particleMaxXSpeed);
-    yDir = random(particleMinYSpeed, particleMaxYSpeed);
-    if (floor(random(0, 2)) == 1) {
-      xDir *= -1.0f;
-    }
-    if (floor(random(0, 2)) == 1) {
-      yDir *= -1.0f;
-    }
-    
+    position = new PVector(width / 2.0f, height / 2.0f, 0);
+    velocity = new PVector(random(-1, 1), random(-1, 1), 0.0f);
+    velocity.normalize();
+    velocity.mult(random(minMagnitude, maxMagnitude));
     partSize = random(30, 60);
     partInnerSize = getInnerSize();
   }
     
   void render() {
     fill(baseColor, 20);
-    ellipse(xPos, yPos, partSize, partSize);
+    ellipse(position.x, position.y, partSize, partSize);
     fill(baseColor, 100);
-    ellipse(xPos, yPos, partInnerSize, partInnerSize);    
+    ellipse(position.x, position.y, getInnerSize(), getInnerSize());    
     life++;
     updateSize();
     move();
@@ -82,7 +70,7 @@ class Particle {
   }
   
   void updateSize() {
-    partSize *= shrinkFactor;
+    partSize = partSize;
     partInnerSize = getInnerSize();
   }
   
@@ -97,15 +85,15 @@ class Particle {
   }
   
   void move() {
-    xPos += xDir;
-    yPos += yDir;
+    position.x += velocity.x;
+    position.y += velocity.y;
   }
   
   boolean isOutOfBounds() {
     boolean outOfBounds = false;
-    if (xPos > width || xPos < 0) {
+    if (position.x > width || position.x < 0) {
       outOfBounds = true;
-    } else if (yPos > height || yPos < 0) {
+    } else if (position.y > height || position.y < 0) {
       outOfBounds = true;
     }
     return outOfBounds;
