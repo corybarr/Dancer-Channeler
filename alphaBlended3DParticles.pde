@@ -1,10 +1,11 @@
 Particle p[];
 float fadeRate;
-int numParticles = 50;
+int numParticles = 30;
 PVector mouseAttractVec;
 boolean userHasInteracted = false;
 PImage dancer;
 PVector partEmitPos;
+float zPush = 0.5f; //max amount dancer can push particles
 
 void setup() {
   size(512, 512);
@@ -12,7 +13,7 @@ void setup() {
   smooth();
   noStroke();
   frameRate(30);
-  mouseAttractVec = new PVector(0.146f, 0.6f, 0.0f);
+  mouseAttractVec = new PVector(0.146f, 0.6f, zPush);
   partEmitPos = new PVector(169, 32, 0);
   
   dancer = loadImage("danielle.jpg");
@@ -29,18 +30,14 @@ void draw() {
   background(0);
   imageMode(CENTER);
   image(dancer, width / 2, height / 2);
-  
-  if (frameCount == 0) {
-    mouseAttractVec = new PVector(0.0f, 0.0f, 0.0f);
-  }
-  
+    
   if (userHasInteracted && (frameCount % (int) (frameRate / 4) == 0)) {
       mouseAttractVec = getMouseAttractVec();
   }
   
   updateParticles(p);
   
-  println("frameRate: " + frameRate);
+  //println("frameRate: " + frameRate);
 }
 
 void mouseMoved() {
@@ -51,16 +48,13 @@ void mousePressed() {
   userHasInteracted = true;
 }
 
-PVector getMouseAttractVec() {
-    //float newXVal = map(mouseX, 0, width, -1, 1);
-    //float newYVal = map(mouseY, 0, height, -1, 1);
-    
+PVector getMouseAttractVec() {    
     PVector maxDistances = new PVector(width, height);
     maxDistances.sub(partEmitPos);
     float newXVal = (mouseX - partEmitPos.x) / maxDistances.x;
     float newYVal = (mouseY - partEmitPos.y) / maxDistances.y;
-      
-    return new PVector(newXVal, newYVal, 0.0f);
+
+    return new PVector(newXVal, newYVal, zPush);
 }
 
 void updateParticles(Particle _p[]) {
@@ -96,6 +90,7 @@ class Particle {
     partSize = random(30, 60);
     curPartSize = partSize;
     innerRingMultiplier = random(0.2, 5);
+    lifespan = floor(random(120, 150));
   }
     
   void render() {
@@ -168,4 +163,5 @@ class Particle {
     return outOfBounds;
   }
 }
+
 
