@@ -1,11 +1,12 @@
 Particle p[];
 float fadeRate;
-int numParticles = 30;
+int numParticles = 15;
+int curNumParticles = 3;
 PVector mouseAttractVec;
 boolean userHasInteracted = false;
 PImage dancer;
 PVector partEmitPos;
-float zPush = 0.5f; //max amount dancer can push particles
+float zPush = 0.45f; //max amount dancer can push particles
 
 void setup() {
   size(512, 512);
@@ -30,6 +31,11 @@ void draw() {
   background(0);
   imageMode(CENTER);
   image(dancer, width / 2, height / 2);
+  
+  //this code is so dancer dose not emit all particles at very beginning
+  if ((curNumParticles < numParticles) && (frameCount % (int) (frameRate / 2) == 0)) {
+    curNumParticles++;
+  }
     
   if (userHasInteracted && (frameCount % (int) (frameRate / 4) == 0)) {
       mouseAttractVec = getMouseAttractVec();
@@ -58,7 +64,8 @@ PVector getMouseAttractVec() {
 }
 
 void updateParticles(Particle _p[]) {
-  for (int i = 0; i < _p.length; i++) {
+  
+  for (int i = 0; i < curNumParticles; i++) {
     _p[i].render();
   
     if (_p[i].lifeOver()) {
